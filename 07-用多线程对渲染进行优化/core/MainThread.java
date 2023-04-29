@@ -58,7 +58,7 @@ public class MainThread extends JFrame implements KeyListener{
 	public MainThread(){
 		
 		//弹出一个宽 为screen_w高为screen_h的Jpanel窗口，并把它放置屏幕中间。
-		setTitle("Java软光栅教程 5");
+		setTitle("Java软光栅教程 7");
 		panel= (JPanel) this.getContentPane();
 		panel.setPreferredSize(new Dimension(screen_w, screen_h));
 		panel.setMinimumSize(new Dimension(screen_w,screen_h));
