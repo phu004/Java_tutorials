@@ -15,6 +15,9 @@ public class Rasterizer {
   	//用来处理着色的线程2
   	public static Shader shader2;
   	
+  	//用来处理着色的线程3
+  	public static Shader shader3;
+  	
     //初始化光栅渲染器
   	public static void init(){
   		
@@ -27,6 +30,11 @@ public class Rasterizer {
 		shader2 = new Shader(null);
 		Thread theTread2 = new Thread(shader2);
 		theTread2.start();
+		
+		//初始化着色器线程2并让线程运行起来
+		shader3 = new Shader(null);
+		Thread theTread3 = new Thread(shader3);
+		theTread3.start();
 	
 	
   	}
@@ -62,6 +70,14 @@ public class Rasterizer {
 			shader2.notify();
 			shader2.isWorking = true;
 		}
+		
+		shader3.VBOsStart = 2;
+  		shader3.VBOsEnd = 3;
+  		
+		synchronized(shader3) {        //让着色器3开始工作
+			shader3.notify();
+			shader3.isWorking = true;
+		}
 	
 		//等着色器1完成渲染
 		synchronized(shader1.myLock) {
@@ -87,17 +103,35 @@ public class Rasterizer {
 			}
 		}
 		
+		//等着色器3完成渲染
+		synchronized(shader3.myLock) {
+			while(shader3.isWorking){
+				try {
+					shader3.myLock.wait();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
+		
 		//把着色器的渲染的结果合并
 		int[] screen1 = shader1.screen;     //着色器1的屏幕会作为最终的屏幕像素发送到显卡里
 		int[] screen2 = shader2.screen;
+		int[] screen3 = shader3.screen;
 		
 		float[] zbuffer1 = shader1.zBuffer;
 		float[] zbuffer2 = shader2.zBuffer;
+		float[] zbuffer3 = shader3.zBuffer;
 		
 		for(int i = 0; i < MainThread.screenSize; i++) {
-			if(zbuffer2[i] > zbuffer1[i]) 
+			if(zbuffer2[i] > zbuffer1[i] && zbuffer2[i] > zbuffer3[i]) {
 				screen1[i] = screen2[i];
+			}else if(zbuffer3[i] > zbuffer2[i] && zbuffer3[i] > zbuffer1[i]){
+				screen1[i] = screen3[i];
+			}
+				
 		}
-		MainThread.triangleCount = shader1.triangleCount + shader2.triangleCount;
+		MainThread.triangleCount = shader1.triangleCount + shader2.triangleCount + shader3.triangleCount;
   	}
 }
