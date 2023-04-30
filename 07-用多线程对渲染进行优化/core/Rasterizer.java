@@ -18,6 +18,9 @@ public class Rasterizer {
   	//用来处理着色的线程3
   	public static Shader shader3;
   	
+  //用来处理着色的线程3
+  	public static Shader shader4;
+  	
     //初始化光栅渲染器
   	public static void init(){
   		
@@ -31,10 +34,15 @@ public class Rasterizer {
 		Thread theTread2 = new Thread(shader2);
 		theTread2.start();
 		
-		//初始化着色器线程2并让线程运行起来
+		//初始化着色器线程3并让线程运行起来
 		shader3 = new Shader(null);
 		Thread theTread3 = new Thread(shader3);
 		theTread3.start();
+		
+		//初始化着色器线程4并让线程运行起来
+		shader4 = new Shader(null);
+		Thread theTread4 = new Thread(shader4);
+		theTread4.start();
 	
 	
   	}
@@ -78,6 +86,14 @@ public class Rasterizer {
 			shader3.notify();
 			shader3.isWorking = true;
 		}
+		
+		shader4.VBOsStart = 3;
+  		shader4.VBOsEnd = 4;
+  		
+		synchronized(shader4) {        //让着色器4开始工作
+			shader4.notify();
+			shader4.isWorking = true;
+		}
 	
 		//等着色器1完成渲染
 		synchronized(shader1.myLock) {
@@ -115,23 +131,38 @@ public class Rasterizer {
 			}
 		}
 		
+		//等着色器4完成渲染
+		synchronized(shader4.myLock) {
+			while(shader4.isWorking){
+				try {
+					shader4.myLock.wait();
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+			}
+		}
+		
 		//把着色器的渲染的结果合并
 		int[] screen1 = shader1.screen;     //着色器1的屏幕会作为最终的屏幕像素发送到显卡里
 		int[] screen2 = shader2.screen;
 		int[] screen3 = shader3.screen;
+		int[] screen4 = shader4.screen;
 		
 		float[] zbuffer1 = shader1.zBuffer;
 		float[] zbuffer2 = shader2.zBuffer;
 		float[] zbuffer3 = shader3.zBuffer;
+		float[] zbuffer4 = shader4.zBuffer;
 		
 		for(int i = 0; i < MainThread.screenSize; i++) {
-			if(zbuffer2[i] > zbuffer1[i] && zbuffer2[i] > zbuffer3[i]) {
+			if(zbuffer2[i] > zbuffer1[i] && zbuffer2[i] >= zbuffer3[i] && zbuffer2[i] >= zbuffer4[i]) {
 				screen1[i] = screen2[i];
-			}else if(zbuffer3[i] > zbuffer2[i] && zbuffer3[i] > zbuffer1[i]){
+			}else if(zbuffer3[i] >= zbuffer2[i] && zbuffer3[i] > zbuffer1[i] && zbuffer3[i] >= zbuffer4[i]){
 				screen1[i] = screen3[i];
+			}else if(zbuffer4[i] >= zbuffer2[i] && zbuffer4[i] > zbuffer1[i] && zbuffer4[i] >= zbuffer3[i]) {
+				screen1[i] = screen4[i];
 			}
-				
 		}
-		MainThread.triangleCount = shader1.triangleCount + shader2.triangleCount + shader3.triangleCount;
+		MainThread.triangleCount = shader1.triangleCount + shader2.triangleCount + shader3.triangleCount + shader4.triangleCount;
   	}
 }

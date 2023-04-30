@@ -137,6 +137,7 @@ public class MainThread extends JFrame implements KeyListener{
 		VertexBufferObject tortus1 = new VertexBufferObject(vertices, indices);
 		VertexBufferObject tortus2 = new VertexBufferObject(vertices, indices);
 		VertexBufferObject tortus3 = new VertexBufferObject(vertices, indices);
+		VertexBufferObject tortus4 = new VertexBufferObject(vertices, indices);
 			
 		//主循环
 		while(true) {
@@ -154,10 +155,10 @@ public class MainThread extends JFrame implements KeyListener{
 			
 			//画甜甜圈1
 			tortus1.triangleColor = 0xCD5C5C;
-			tortus1.localTranslation.set(0.5f, 0, 4f);
 			tortus1.localRotationY = (frameIndex*2)%360;
 			tortus1.localRotationX = (frameIndex*2)%360;
 			tortus1.localRotationZ = (frameIndex*2)%360;
+			tortus1.localTranslation.set(0.5f, -0.5f, 4.5f);
 			Rasterizer.addVBO(tortus1);
 			
 			//画甜甜圈2
@@ -165,7 +166,7 @@ public class MainThread extends JFrame implements KeyListener{
 			tortus2.localRotationY = 180;
 			tortus2.localRotationX = 0;
 			tortus2.localRotationZ = 0;
-			tortus2.localTranslation.set(-0.2f, 0.3f, 4.2f);
+			tortus2.localTranslation.set(-0.2f, -0.2f, 4.7f);
 			Rasterizer.addVBO(tortus2);
 			
 			//画甜甜圈3
@@ -173,8 +174,16 @@ public class MainThread extends JFrame implements KeyListener{
 			tortus3.localRotationY = (frameIndex*2+ 90)%360;
 			tortus3.localRotationX = (frameIndex*2+ 180)%360;
 			tortus3.localRotationZ = (frameIndex*2+ 90)%360;
-			tortus3.localTranslation.set(-1.2f, -0.1f, 4.5f);
+			tortus3.localTranslation.set(-1.2f, -0.6f, 5f);
 			Rasterizer.addVBO(tortus3);
+			
+			//画甜甜圈4
+			tortus4.triangleColor = 0xD77DE2;
+			tortus4.localRotationY = (frameIndex*2+ 45)%360;
+			tortus4.localRotationX = (frameIndex*2+ 180)%360;
+			tortus4.localRotationZ = (frameIndex*2+ 270)%360;
+			tortus4.localTranslation.set(-0.1f, 0.5f, 4.3f);
+			Rasterizer.addVBO(tortus4);
 			
 			Rasterizer.renderScene();
 			
