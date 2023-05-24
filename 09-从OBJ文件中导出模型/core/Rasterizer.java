@@ -138,27 +138,7 @@ public class Rasterizer {
 				}
 			}
 		}
-		
-		//把着色器的渲染的结果合并
-		int[] screen1 = shader1.screen;     //着色器1的屏幕会作为最终的屏幕像素发送到显卡里
-		int[] screen2 = shader2.screen;
-		int[] screen3 = shader3.screen;
-		int[] screen4 = shader4.screen;
-		
-		float[] zbuffer1 = shader1.zBuffer;
-		float[] zbuffer2 = shader2.zBuffer;
-		float[] zbuffer3 = shader3.zBuffer;
-		float[] zbuffer4 = shader4.zBuffer;
-		
-		for(int i = 0; i < MainThread.screenSize; i++) {
-			if(zbuffer2[i] > zbuffer1[i] && zbuffer2[i] >= zbuffer3[i] && zbuffer2[i] >= zbuffer4[i]) {
-				screen1[i] = screen2[i];
-			}else if(zbuffer3[i] >= zbuffer2[i] && zbuffer3[i] > zbuffer1[i] && zbuffer3[i] >= zbuffer4[i]){
-				screen1[i] = screen3[i];
-			}else if(zbuffer4[i] >= zbuffer2[i] && zbuffer4[i] > zbuffer1[i] && zbuffer4[i] >= zbuffer3[i]) {
-				screen1[i] = screen4[i];
-			}
-		}
+
 		MainThread.triangleCount = shader1.triangleCount + shader2.triangleCount + shader3.triangleCount + shader4.triangleCount;
   	}
 }

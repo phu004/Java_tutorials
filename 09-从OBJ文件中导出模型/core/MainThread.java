@@ -28,6 +28,9 @@ public class MainThread extends JFrame implements KeyListener{
 	//使用一个int数组存处屏幕上像素的数值
 	public static int[] screen;
 	
+	//使用一个float数组来存储屏幕的深度缓冲值
+	public static float[] zBuffer;
+	
 	//屏幕图像缓冲区。它提供了在内存中操作屏幕中图像的方法
 	public static BufferedImage screenBuffer;
 	
@@ -56,7 +59,7 @@ public class MainThread extends JFrame implements KeyListener{
 	public MainThread(){
 		
 		//弹出一个宽 为screen_w高为screen_h的Jpanel窗口，并把它放置屏幕中间。
-		setTitle("Java软光栅教程 8");
+		setTitle("Java软光栅教程 9");
 		panel= (JPanel) this.getContentPane();
 		panel.setPreferredSize(new Dimension(screen_w, screen_h));
 		panel.setMinimumSize(new Dimension(screen_w,screen_h));
@@ -75,6 +78,8 @@ public class MainThread extends JFrame implements KeyListener{
 		DataBuffer dest = screenBuffer.getRaster().getDataBuffer();
 		screen = ((DataBufferInt)dest).getData();
 		
+		zBuffer = new float[screenSize];
+		
 		//初始化查找表
 		LookupTables.init();
 		
@@ -87,86 +92,18 @@ public class MainThread extends JFrame implements KeyListener{
 		//添加按键监听器
 		addKeyListener(this);
 		
-		//做一个甜甜圈的场景
-		float R = 1.0f; // radius of the torus
-		float r = 0.3f; // radius of the tube
-
-		int numSides = 128; // number of sides around the tube
-		int numRings =256; // number of rings around the torus
-
-		Vector3D[] vertices = new Vector3D[numSides * numRings];
-		int[] indices = new int[numSides * numRings * 6];
-		Vector3D[] normals = new Vector3D[numSides * numRings];
-
-		int index = 0;
-
-		for (int i = 0; i < numRings; i++) {
-		    float u = (float)i / numRings * 2.0f * (float)Math.PI;
-		    for (int j = 0; j < numSides; j++) {
-		        float v = (float)j / numSides * 2.0f * (float)Math.PI;
-		        float x = (R + r * (float)Math.cos(v)) * (float)Math.cos(u);
-		        float y = (R + r * (float)Math.cos(v)) * (float)Math.sin(u);
-		        float z = r * (float)Math.sin(v);
-		        vertices[index++] = new Vector3D(x, y, z);
-		    }
-		}
-
-		index = 0;
-
-		for (int i = 0; i < numRings; i++) {
-		    for (int j = 0; j < numSides; j++) {
-		        int nexti = (i + 1) % numRings;
-		        int nextj = (j + 1) % numSides;
-		        int a = i * numSides + j;
-		        int b = i * numSides + nextj;
-		        int c = nexti * numSides + nextj;
-		        int d = nexti * numSides + j;
-		        indices[index++] = a;
-		        indices[index++] = b;
-		        indices[index++] = c;
-		        indices[index++] = c;
-		        indices[index++] = d;
-		        indices[index++] = a;
-		    }
-		}
-		
-		for (int i = 0; i < numRings; i++) {
-		    for (int j = 0; j < numSides; j++) {
-		        int currentVertexIndex = i * numSides + j;
-
-		        // Get the indices of the adjacent vertices
-		        int rightVertexIndex = i * numSides + (j + 1) % numSides;
-		        int bottomVertexIndex = (i + 1) % numRings * numSides + j;
-		        int leftVertexIndex = i * numSides + (j - 1 + numSides) % numSides;
-		        int topVertexIndex = (i - 1 + numRings) % numRings * numSides + j;
-
-		        // Calculate the tangents along the u and v directions
-		        Vector3D rightTangent = new Vector3D(vertices[rightVertexIndex]).subtract(vertices[currentVertexIndex]);
-		        Vector3D bottomTangent = new Vector3D(vertices[bottomVertexIndex]).subtract(vertices[currentVertexIndex]);
-		        Vector3D leftTangent = new Vector3D(vertices[leftVertexIndex]).subtract(vertices[currentVertexIndex]);
-		        Vector3D topTangent = new Vector3D(vertices[topVertexIndex]).subtract(vertices[currentVertexIndex]);
-
-		        // Calculate the normal as the cross product of the tangents
-		        Vector3D normal = rightTangent.cross(bottomTangent).unit().add(
-		            bottomTangent.cross(leftTangent).unit()).add(
-		            leftTangent.cross(topTangent).unit()).add(
-		            topTangent.cross(rightTangent).unit()).unit();
-
-		        normals[currentVertexIndex] = normal.scale(-1);
-		       
-		    }
-		}
 		
 		
 		//定义一个光源
-		Light lightSource = new Light(0, 30f, -10f, 0.6f);
+		Light lightSource = new Light(0, 300f, -100f, 0.6f);
 		
-		float kd = 0.2f; float ks=0.9f;
+		float kd = 0.2f; float ks=0.6f;
 		
-		VertexBufferObject tortus1 = new VertexBufferObject(vertices, indices, normals, lightSource, kd,ks);
-		VertexBufferObject tortus2 = new VertexBufferObject(vertices, indices, normals,lightSource, kd,ks);
-		VertexBufferObject tortus3 = new VertexBufferObject(vertices, indices, normals,lightSource, kd,ks);
-		VertexBufferObject tortus4 = new VertexBufferObject(vertices, indices, normals,lightSource, kd,ks);
+		Mesh bunnyMesh = new Mesh("objs/bunny.obj", "clockwise");
+		VertexBufferObject bunny1 = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
+		VertexBufferObject bunny2 = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
+		VertexBufferObject bunny3 = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
+		VertexBufferObject bunny4 = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
 		
 		//主循环
 		while(true) {
@@ -177,44 +114,48 @@ public class MainThread extends JFrame implements KeyListener{
 			//更新视角
 			Camera.update();
 			
+			//清零深度缓冲
+			zBuffer[0] = 0;
+			for(int i = 1; i < screenSize; i+=i)
+				System.arraycopy(zBuffer, 0, zBuffer, i, screenSize - i >= i ? i : screenSize - i);
+			
 			//把背景渲染成天蓝色
 			screen[0] = (163 << 16) | (216 << 8) | 239; //天蓝色
 			for(int i = 1; i < screenSize; i+=i)
 				System.arraycopy(screen, 0, screen, i, screenSize - i >= i ? i : screenSize - i);
 			
+			
+			
 			Rasterizer.prepare();
 			
-			//画甜甜圈1
-			tortus1.triangleColor = 0xB33B3B;
-			tortus1.localRotationY = (frameIndex*2)%360;
-			tortus1.localRotationX = (frameIndex*2)%360;
-			tortus1.localRotationZ = (frameIndex*2)%360;
-			tortus1.localTranslation.set(0.5f, -0.5f, 4.5f);
-			Rasterizer.addVBO(tortus1);
+			//兔子1
+			bunny1.triangleColor = 0xffffff;
+			bunny1.localRotationY = (frameIndex*1)%360;
+			bunny1.localTranslation.set(1.2f, -1.1f, 3.7f);
+			bunny1.scale = 7f;
+			Rasterizer.addVBO(bunny1);
 			
-			//画甜甜圈2
-			tortus2.triangleColor = 0x006B6B;
-			tortus2.localRotationY = 0;
-			tortus2.localRotationX = 0;
-			tortus2.localRotationZ = 0;
-			tortus2.localTranslation.set(-0.2f, -0.2f, 4.7f);
-			Rasterizer.addVBO(tortus2);
+			//兔子2
+			bunny2.triangleColor = 0x006B6B;
+			bunny2.localTranslation.set(0.3f, -1.1f, 4.9f);
+			bunny2.localRotationY = 40;
+			bunny2.scale = 7f;
+			Rasterizer.addVBO(bunny2);	
 			
-			//画甜甜圈3
-			tortus3.triangleColor = 0xE56B3C;
-			tortus3.localRotationY = (frameIndex*2+ 90)%360;
-			tortus3.localRotationX = (frameIndex*2+ 180)%360;
-			tortus3.localRotationZ = (frameIndex*2+ 90)%360;
-			tortus3.localTranslation.set(-1.2f, -0.6f, 5f);
-			Rasterizer.addVBO(tortus3);
+		
+			//兔子3
+			bunny3.triangleColor = 0xE56B3C;
+			bunny3.localRotationY = 360 -(frameIndex*3%360);
+			bunny3.localTranslation.set(-1.1f, -1.1f, 4.4f);
+			bunny3.scale = 7f;
+			Rasterizer.addVBO(bunny3);
 			
-			//画甜甜圈4
-			tortus4.triangleColor = 0xB361B9;
-			tortus4.localRotationY = (frameIndex*2+ 45)%360;
-			tortus4.localRotationX = (frameIndex*2+ 180)%360;
-			tortus4.localRotationZ = (frameIndex*2+ 270)%360;
-			tortus4.localTranslation.set(-0.1f, 0.5f, 4.3f);
-			Rasterizer.addVBO(tortus4);
+			//兔子4
+			bunny4.triangleColor = 0xB361B9;
+			bunny4.localRotationY = (frameIndex*2+ 145)%360;
+			bunny4.localTranslation.set(0f, -1.1f, 3.7f);
+			bunny4.scale = 7f;
+			Rasterizer.addVBO(bunny4);
 			
 			Rasterizer.renderScene();
 	

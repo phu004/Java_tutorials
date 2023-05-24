@@ -93,15 +93,8 @@ public class Shader extends Thread{
 		myLock = new Object();
 		this.name = name;
 		
-		//初始化深度缓冲
-		zBuffer = new float[screenSize];
-		
-		//初始化屏幕
-		if(screen == null) {
-			this.screen = new int[screenSize];
-		}else {
-			this.screen = screen;
-		}
+		this.screen = MainThread.screen;
+		this.zBuffer = MainThread.zBuffer;
 		
 		//初始化三角形变换后的顶点
 		updatedVertices = new Vector3D[]{
@@ -153,17 +146,8 @@ public class Shader extends Thread{
 		
 			//锁被打开后, 下面运行渲染任务
 			
-			//把深度缓冲归零
-			zBuffer[0] = 0;
-			
 			//把三角形数归零
 			triangleCount = 0;
-			
-			
-	
-			
-			for(int i = 1; i < screenSize; i+=i)
-				System.arraycopy(zBuffer, 0, zBuffer, i, screenSize - i >= i ? i : screenSize - i);
 		
 			//对渲染器分配给自己的顶点缓冲对象进行渲染
 			for(int j = VBOsStart; j < VBOsEnd; j++) {
@@ -270,9 +254,9 @@ public class Shader extends Thread{
 				viewDirection.set(Camera.position).subtract(VBO.updatedVertexBuffer[i]).unit();
 				float ls = viewDirection.dot(reflectionDirection);
 				ls = Math.max(ls,0);
-				ls = ls*ls*ls*ls;
-				ls = ls*ls*ls*ls;
-				ls = ls*ls*ls*ls; //n = 64;
+				ls = ls*ls*ls*ls*ls*ls;
+				ls = ls*ls*ls*ls*ls*ls;
+				//n = 64;
 				ls = VBO.ks * ls;
 				VBO.vertexLightLevelBuffer[i] = ld + ls;
 			}
