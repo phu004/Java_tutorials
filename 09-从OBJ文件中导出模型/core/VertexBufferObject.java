@@ -48,7 +48,7 @@ public class VertexBufferObject {
   	public Light lightSource;
   	  	
 	//构造函数，
-	public VertexBufferObject(Vector3D[] vertexBuffer, int[]  indexBuffer, Vector3D[] normals, Light lightSource, float kd, float ks) {
+	public VertexBufferObject(Vector3D[] vertexBuffer, Vector3D[] normals, int[]  indexBuffer, Light lightSource, float kd, float ks) {
 		this.vertexBuffer = vertexBuffer;
 		this.indexBuffer = indexBuffer;
 		this.vertexCount = vertexBuffer.length;

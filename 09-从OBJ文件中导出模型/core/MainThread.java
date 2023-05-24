@@ -103,8 +103,9 @@ public class MainThread extends JFrame implements KeyListener{
 		Mesh bunnyMesh = new Mesh("objs/bunny.obj", "anti_clockwise");
 		VertexBufferObject[] bunnies = new VertexBufferObject[4];
 		for(int i = 0; i < bunnies.length; i++) {
-			bunnies[i] = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
+			bunnies[i] = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.normals, bunnyMesh.indices,  lightSource, kd, ks);
 		}
+		
 		
 		//主循环
 		while(true) {

@@ -25,6 +25,8 @@ public class Shader extends Thread{
   	//辅助渲染计算顶点亮度的变量
   	public Vector3D vertexNormal, lightDirection, reflectionDirection, viewDirection;
   	public float[] clippedLight = new float[4];
+  	public float local_sinX, local_cosX, local_sinY, local_cosY, local_sinZ, local_cosZ, global_sinY, global_cosY, global_sinX, global_cosX;
+
   	
   	//三角形变换后的顶点的亮度
   	public float[] vertexLightLevel = new float[4];
@@ -154,6 +156,18 @@ public class Shader extends Thread{
 	  			VBO = Rasterizer.VBOs[j];
 	  			triangleColor = VBO.triangleColor;
 	  			
+	  			//从预先算好的三角函数表中获取变换角度所需的函数值
+		  		local_sinX = LookupTables.sin[VBO.localRotationX]; 
+				local_cosX = LookupTables.cos[VBO.localRotationX];
+				local_sinY = LookupTables.sin[VBO.localRotationY];
+				local_cosY = LookupTables.cos[VBO.localRotationY];
+				local_sinZ = LookupTables.sin[VBO.localRotationZ];
+				local_cosZ = LookupTables.cos[VBO.localRotationZ];
+			  	
+		  		global_sinY = LookupTables.sin[360-Camera.Y_angle];
+				global_cosY = LookupTables.cos[360-Camera.Y_angle];
+				global_sinX = LookupTables.sin[360-Camera.X_angle]; 
+				global_cosX = LookupTables.cos[360-Camera.X_angle];
 	  				  			
 	  			//变换三角形的顶点
 	  	  		transformVertices(VBO);
@@ -199,20 +213,8 @@ public class Shader extends Thread{
 	
 	//变换三角形的顶点
   	public  void transformVertices(VertexBufferObject VBO){
+  		int count = 0;
   		
-  		//从预先算好的三角函数表中获取变换角度所需的函数值
-  		float local_sinX = LookupTables.sin[VBO.localRotationX]; 
-		float local_cosX = LookupTables.cos[VBO.localRotationX];
-		float local_sinY = LookupTables.sin[VBO.localRotationY];
-		float local_cosY = LookupTables.cos[VBO.localRotationY];
-		float local_sinZ = LookupTables.sin[VBO.localRotationZ];
-		float local_cosZ = LookupTables.cos[VBO.localRotationZ];
-	  	
-  		float global_sinY = LookupTables.sin[360-Camera.Y_angle];
-		float global_cosY = LookupTables.cos[360-Camera.Y_angle];
-		float global_sinX = LookupTables.sin[360-Camera.X_angle]; 
-		float global_cosX = LookupTables.cos[360-Camera.X_angle];
-		
 		for(int i = 0; i < VBO.vertexCount; i++) {
 			
 			//将顶点缓冲中的顶点恢复初始值
@@ -235,37 +237,46 @@ public class Shader extends Thread{
 			vertexNormal.rotate_Y(local_sinY, local_cosY);
 			vertexNormal.rotate_Z(local_sinZ, local_cosZ);
 			
-			//在顶点按视角的变换转换之前计算顶点亮度
-			if(VBO.lightSource != null) {
-				//计算顶点受到光照亮度: 顶点亮度 = 环境的亮度 + 漫反射亮度 + 镜面反射亮度
-				//由于环境的亮度要在给像素着色的步骤中完成，我们这里只计算 漫反射亮度 + 镜面反射亮度
-				
-				//漫反射亮度 = 漫反射系数 * （顶点法量 点积 顶点到光源方向）
-				lightDirection.set(VBO.lightSource.position);
-				lightDirection.subtract(VBO.updatedVertexBuffer[i]);
-				lightDirection.unit();
-				float ld = VBO.kd * (Math.max(vertexNormal.dot(lightDirection), 0));
-				
-				//光线的反射方向 = 2 * （顶点法量 点积 顶点到光源方向） * 顶点法量 - 顶点到光源方向
-				reflectionDirection.set(vertexNormal).scale(2 * vertexNormal.dot(lightDirection)).subtract(lightDirection);
-				
-				
-				//镜面反射亮度 = 镜面反射系数 * （光线的反射方向 点积 顶点到视角方向） ^ n
-				viewDirection.set(Camera.position).subtract(VBO.updatedVertexBuffer[i]).unit();
-				float ls = viewDirection.dot(reflectionDirection);
-				ls = Math.max(ls,0);
-				ls = ls*ls*ls*ls*ls*ls;
-				ls = ls*ls*ls*ls*ls*ls;
-				//n = 64;
-				ls = VBO.ks * ls;
-				VBO.vertexLightLevelBuffer[i] = ld + ls;
+			
+			//如果顶点的法线和视角方向相反，就不计算其亮度。
+			tempVector1.set(vertexNormal);
+			tempVector1.rotate_Y(global_sinY, global_cosY);
+			tempVector1.rotate_X(global_sinX, global_cosX);
+			
+			if(tempVector1.z >0.3) {
+				VBO.vertexLightLevelBuffer[i] = 0;
+			}else {
+			
+				//在顶点按视角的变换转换之前计算顶点亮度
+				if(VBO.lightSource != null) {
+					//计算顶点受到光照亮度: 顶点亮度 = 环境的亮度 + 漫反射亮度 + 镜面反射亮度
+					//由于环境的亮度要在给像素着色的步骤中完成，我们这里只计算 漫反射亮度 + 镜面反射亮度
+					
+					//漫反射亮度 = 漫反射系数 * （顶点法量 点积 顶点到光源方向）
+					lightDirection.set(VBO.lightSource.position);
+					lightDirection.subtract(VBO.updatedVertexBuffer[i]);
+					lightDirection.unit();
+					float ld = VBO.kd * (Math.max(vertexNormal.dot(lightDirection), 0));
+					
+					//光线的反射方向 = 2 * （顶点法量 点积 顶点到光源方向） * 顶点法量 - 顶点到光源方向
+					reflectionDirection.set(vertexNormal).scale(2 * vertexNormal.dot(lightDirection)).subtract(lightDirection);
+					
+					//镜面反射亮度 = 镜面反射系数 * （光线的反射方向 点积 顶点到视角方向） ^ n
+					viewDirection.set(Camera.position).subtract(VBO.updatedVertexBuffer[i]).unit();
+					float ls = viewDirection.dot(reflectionDirection);
+					ls = Math.max(ls,0);
+					ls = ls*ls*ls*ls*ls*ls;
+					ls = ls*ls*ls*ls*ls*ls;
+					//n = 64;
+					ls = VBO.ks * ls;
+					VBO.vertexLightLevelBuffer[i] = ld + ls;
+				}
 			}
 			
 			//把顶点缓冲中的顶点按视角变换的反方向用来转换
 			VBO.updatedVertexBuffer[i].subtract(Camera.position);
 			VBO.updatedVertexBuffer[i].rotate_Y(global_sinY, global_cosY);
 			VBO.updatedVertexBuffer[i].rotate_X(global_sinX, global_cosX);
-			
 		}
   	}
   	
