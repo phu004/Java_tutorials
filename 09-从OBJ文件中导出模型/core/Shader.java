@@ -89,7 +89,7 @@ public class Shader extends Thread{
   	
   	
 	//构造函数
-	public Shader(int[] screen, String name) {
+	public Shader(String name) {
 		myLock = new Object();
 		this.name = name;
 		

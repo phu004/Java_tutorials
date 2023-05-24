@@ -124,8 +124,6 @@ public class MainThread extends JFrame implements KeyListener{
 			for(int i = 1; i < screenSize; i+=i)
 				System.arraycopy(screen, 0, screen, i, screenSize - i >= i ? i : screenSize - i);
 			
-			
-			
 			Rasterizer.prepare();
 			
 			//兔子1
