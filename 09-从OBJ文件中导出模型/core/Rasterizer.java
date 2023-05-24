@@ -60,6 +60,7 @@ public class Rasterizer {
 			}
 		}
 		
+		//等着色器线程完成工作
 		for(int i = 0; i < shaders.length; i++) {
 			synchronized(shaders[i].myLock) {
 				while(shaders[i].isWorking){
