@@ -39,6 +39,8 @@ public class Rasterizer {
   		
   		shaders[3].VBOsStart = 3;
   		shaders[3].VBOsEnd = 4;
+  		
+  	
   	}
   	
   	//加载一个VBO
@@ -70,7 +72,10 @@ public class Rasterizer {
 				}
 			}
 		}
-	
-		MainThread.triangleCount = shaders[0].triangleCount + shaders[1].triangleCount + shaders[2].triangleCount + shaders[3].triangleCount;
+		
+		//计算渲染的三角形总数
+		for(int i = 0; i < shaders.length; i++)
+			MainThread.triangleCount+=shaders[i].triangleCount;
+		
   	}
 }

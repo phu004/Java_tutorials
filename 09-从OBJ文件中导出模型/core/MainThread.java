@@ -99,11 +99,12 @@ public class MainThread extends JFrame implements KeyListener{
 		
 		float kd = 0.2f; float ks=0.6f;
 		
-		Mesh bunnyMesh = new Mesh("objs/bunny.obj", "clockwise");
-		VertexBufferObject bunny1 = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
-		VertexBufferObject bunny2 = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
-		VertexBufferObject bunny3 = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
-		VertexBufferObject bunny4 = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
+		//由obj文件构建兔子模型
+		Mesh bunnyMesh = new Mesh("objs/bunny.obj", "anti_clockwise");
+		VertexBufferObject[] bunnies = new VertexBufferObject[4];
+		for(int i = 0; i < bunnies.length; i++) {
+			bunnies[i] = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.indices, bunnyMesh.normals, lightSource, kd, ks);
+		}
 		
 		//主循环
 		while(true) {
@@ -126,34 +127,30 @@ public class MainThread extends JFrame implements KeyListener{
 			
 			Rasterizer.prepare();
 			
-			//兔子1
-			bunny1.triangleColor = 0xffffff;
-			bunny1.localRotationY = (frameIndex*1)%360;
-			bunny1.localTranslation.set(1.2f, -1.1f, 3.7f);
-			bunny1.scale = 7f;
-			Rasterizer.addVBO(bunny1);
+			//渲染兔子模型
+			bunnies[0].triangleColor = 0xffffff;
+			bunnies[0].localRotationY = (frameIndex*1)%360;
+			bunnies[0].localTranslation.set(1.2f, -1.1f, 4.7f);
+			bunnies[0].scale = 7f;
 			
-			//兔子2
-			bunny2.triangleColor = 0x006B6B;
-			bunny2.localTranslation.set(0.3f, -1.1f, 4.9f);
-			bunny2.localRotationY = 40;
-			bunny2.scale = 7f;
-			Rasterizer.addVBO(bunny2);	
+			bunnies[1].triangleColor = 0x006B6B;
+			bunnies[1].localTranslation.set(0.3f, -1.1f, 5.9f);
+			bunnies[1].localRotationY = 40;
+			bunnies[1].scale = 7f;
+	
+			bunnies[2].triangleColor = 0xE56B3C;
+			bunnies[2].localRotationY = 360 -(frameIndex*3%360);
+			bunnies[2].localTranslation.set(-1.1f, -1.1f, 5.4f);
+			bunnies[2].scale = 7f;
 			
+			bunnies[3].triangleColor = 0xB361B9;
+			bunnies[3].localRotationY = (frameIndex*2+ 145)%360;
+			bunnies[3].localTranslation.set(0f, -1.1f, 4.7f);
+			bunnies[3].scale = 7f;
 		
-			//兔子3
-			bunny3.triangleColor = 0xE56B3C;
-			bunny3.localRotationY = 360 -(frameIndex*3%360);
-			bunny3.localTranslation.set(-1.1f, -1.1f, 4.4f);
-			bunny3.scale = 7f;
-			Rasterizer.addVBO(bunny3);
 			
-			//兔子4
-			bunny4.triangleColor = 0xB361B9;
-			bunny4.localRotationY = (frameIndex*2+ 145)%360;
-			bunny4.localTranslation.set(0f, -1.1f, 3.7f);
-			bunny4.scale = 7f;
-			Rasterizer.addVBO(bunny4);
+			for(int i = 0; i < bunnies.length; i++)
+				Rasterizer.addVBO(bunnies[i]);
 			
 			Rasterizer.renderScene();
 	

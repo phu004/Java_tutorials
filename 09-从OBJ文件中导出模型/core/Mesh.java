@@ -67,7 +67,7 @@ public class Mesh {
         		} else if (line.startsWith("f ")) {
         			String[] values = line.split("\\s+");
         			if(order == "clockwise") {
-	        			for (int i = 3; i >= 1; i--) {
+	        			for (int i = 1; i <= 3; i++) {
 	        				String[] indicesValues = values[i].split("/");
 	        				int vertexIndexValue = Integer.parseInt(indicesValues[0]) - 1;
 	        				int normalIndexValue = Integer.parseInt(indicesValues[2])-1;
@@ -75,11 +75,12 @@ public class Mesh {
 	        				indices[indexIndex++] = vertexIndexValue;
 	        			}
         			}else {
-        				 for (int i = 1; i <= 3; i++) {
+        				 for (int i = 3; i >= 1; i--) {
   	                        String[] indicesValues = values[i].split("/");
   	                        int vertexIndexValue = Integer.parseInt(indicesValues[0]) - 1;
+  	                        int normalIndexValue = Integer.parseInt(indicesValues[2])-1;
+  	                        normals[vertexIndexValue] = normalsTemp[normalIndexValue];
   	                        indices[indexIndex++] = vertexIndexValue;
-  	                        normals[vertexIndexValue] = normalsTemp[Integer.parseInt(indicesValues[2])-1];
   	                    }
         			}
           
