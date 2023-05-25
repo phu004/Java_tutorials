@@ -87,7 +87,7 @@ public class MainThread extends JFrame implements KeyListener{
 		Rasterizer.init();
 		
 		//初始化视角
-		Camera.init(0,0,0);
+		Camera.init(0,1,0);
 		
 		//添加按键监听器
 		addKeyListener(this);
@@ -100,13 +100,13 @@ public class MainThread extends JFrame implements KeyListener{
 		float kd = 0.2f; float ks=0.6f;
 		
 		//由obj文件构建兔子模型
-		Mesh bunnyMesh = new Mesh("objs/bunny.obj", "anti_clockwise");
+		Mesh bunnyMesh = new Mesh("objs/bunny.obj", "clockwise");
 		VertexBufferObject[] bunnies = new VertexBufferObject[4];
 		for(int i = 0; i < bunnies.length; i++) {
-			bunnies[i] = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.normals, bunnyMesh.indices,  lightSource, kd, ks);
+			bunnies[i] = new VertexBufferObject(bunnyMesh.vertices, bunnyMesh.normals, bunnyMesh.indices, lightSource, kd, ks);
 		}
 		
-		
+	
 		//主循环
 		while(true) {
 			
@@ -121,7 +121,7 @@ public class MainThread extends JFrame implements KeyListener{
 			for(int i = 1; i < screenSize; i+=i)
 				System.arraycopy(zBuffer, 0, zBuffer, i, screenSize - i >= i ? i : screenSize - i);
 			
-			//把背景渲染成天蓝色
+			//把屏幕渲染成天蓝色
 			screen[0] = (163 << 16) | (216 << 8) | 239; //天蓝色
 			for(int i = 1; i < screenSize; i+=i)
 				System.arraycopy(screen, 0, screen, i, screenSize - i >= i ? i : screenSize - i);
@@ -131,25 +131,24 @@ public class MainThread extends JFrame implements KeyListener{
 			//渲染兔子模型
 			bunnies[0].triangleColor = 0xffffff;
 			bunnies[0].localRotationY = (frameIndex*1)%360;
-			bunnies[0].localTranslation.set(1.2f, -1.1f, 4.7f);
+			bunnies[0].localTranslation.set(1.2f, -2.1f, 7.7f);
 			bunnies[0].scale = 7f;
 			
 			bunnies[1].triangleColor = 0x006B6B;
-			bunnies[1].localTranslation.set(0.3f, -1.1f, 5.9f);
+			bunnies[1].localTranslation.set(0.3f, -2.1f, 8.9f);
 			bunnies[1].localRotationY = 40;
 			bunnies[1].scale = 7f;
 	
 			bunnies[2].triangleColor = 0xE56B3C;
 			bunnies[2].localRotationY = 360 -(frameIndex*3%360);
-			bunnies[2].localTranslation.set(-1.1f, -1.1f, 5.4f);
+			bunnies[2].localTranslation.set(-1.1f, -2.1f, 8.4f);
 			bunnies[2].scale = 7f;
 			
 			bunnies[3].triangleColor = 0xB361B9;
 			bunnies[3].localRotationY = (frameIndex*2+ 145)%360;
-			bunnies[3].localTranslation.set(0f, -1.1f, 4.7f);
+			bunnies[3].localTranslation.set(0f, -2.1f, 7.7f);
 			bunnies[3].scale = 7f;
 		
-			
 			for(int i = 0; i < bunnies.length; i++)
 				Rasterizer.addVBO(bunnies[i]);
 			

@@ -36,7 +36,10 @@ public class VertexBufferObject {
 	public int triangleColor;
 	
   	//三角形的类型
-  	public int renderType;
+  	public int renderType = 0;
+  	public final static int soildColor = 0;
+  	public final static int textured = 1;
+  	
   	
   	//漫反射系数
   	public float kd;

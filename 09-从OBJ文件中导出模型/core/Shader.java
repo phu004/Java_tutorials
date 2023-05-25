@@ -27,6 +27,8 @@ public class Shader extends Thread{
   	public float[] clippedLight = new float[4];
   	public float local_sinX, local_cosX, local_sinY, local_cosY, local_sinZ, local_cosZ, global_sinY, global_cosY, global_sinX, global_cosX;
 
+  	//辅助渲染计算纹理的变量
+  	public Vector3D uDirection, vDirection;
   	
   	//三角形变换后的顶点的亮度
   	public float[] vertexLightLevel = new float[4];
@@ -89,7 +91,6 @@ public class Shader extends Thread{
   	//渲染的三角形数
   	public int triangleCount;
   	
-  	
 	//构造函数
 	public Shader(String name) {
 		myLock = new Object();
@@ -122,6 +123,10 @@ public class Shader extends Thread{
 		lightDirection = new Vector3D(0,0,0);
 		reflectionDirection = new Vector3D(0,0,0);
 		viewDirection = new Vector3D(0,0,0);
+		
+		//初始化辅助用来计算纹理的矢量
+		uDirection = new Vector3D(0,0,0);
+		vDirection = new Vector3D(0,0,0);
 		
 	}
 	
@@ -177,9 +182,9 @@ public class Shader extends Thread{
 		  		for(int i = 0; i < VBO.triangleCount; i++) {
 		  			
 		  			
-		  			int firstVertex = VBO.indexBuffer[i*3+2];
+		  			int firstVertex = VBO.indexBuffer[i*3];
 		  			int secondVertex = VBO.indexBuffer[i*3+1];
-		  			int thirdVertex = VBO.indexBuffer[i*3];
+		  			int thirdVertex = VBO.indexBuffer[i*3+2];
 		  			
 		  			//用索引缓冲来构建三角形
 		  			updatedVertices[0] = VBO.updatedVertexBuffer[firstVertex];
@@ -200,6 +205,10 @@ public class Shader extends Thread{
 			  		isHidden = clipZNearPlane();		
 			  		if(isHidden)
 			  			continue;
+			  		
+			  		if(VBO.renderType == VBO.textured) {
+			  			System.out.println(firstVertex);
+			  		}
 			  		
 			  		triangleCount++;
 			  		
@@ -243,7 +252,7 @@ public class Shader extends Thread{
 			tempVector1.rotate_Y(global_sinY, global_cosY);
 			tempVector1.rotate_X(global_sinX, global_cosX);
 			
-			if(tempVector1.z >0.3) {
+			if(tempVector1.z >0.4) {
 				VBO.vertexLightLevelBuffer[i] = 0;
 			}else {
 			
@@ -446,10 +455,9 @@ public class Shader extends Thread{
   	//给三角形的像素着色
   	public  void renderTriangle(int renderType) {
   		//根据三角形的类别选择不同渲染方法
-  		if(renderType == 0) {
-  		
+  		if(renderType == VBO.soildColor) {
 	  		scanTriangle_zDepth_Shading();	
-	  	
+	  		rendersolidTriangle_zDepth_shading();
   		}
   	
   	}
@@ -600,7 +608,7 @@ public class Shader extends Thread{
 			}
 		}
 		
-		rendersolidTriangle_zDepth_shading();
+		
   	}
   	
   	//画单色的三角形 （填充深度值，使用亮度）
@@ -644,7 +652,8 @@ public class Shader extends Thread{
   				}
   			}
   		}
-  		
   	}
+  	
+
 
 }
