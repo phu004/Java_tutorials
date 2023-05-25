@@ -205,10 +205,7 @@ public class Shader extends Thread{
 			  		isHidden = clipZNearPlane();		
 			  		if(isHidden)
 			  			continue;
-			  		
-			  		if(VBO.renderType == VBO.textured) {
-			  			System.out.println(firstVertex);
-			  		}
+			  	
 			  		
 			  		triangleCount++;
 			  		
