@@ -210,7 +210,7 @@ public class Shader extends Thread{
 			  		triangleCount++;
 			  		
 			  	    //给三角形的像素着色
-			  		renderTriangle(VBO.renderType);
+			  		scanTriangle();	
 			  		
 		  		}
 	  		}	
@@ -449,18 +449,10 @@ public class Shader extends Thread{
   	
   	
   	
-  	//给三角形的像素着色
-  	public  void renderTriangle(int renderType) {
-  		//根据三角形的类别选择不同渲染方法
-  		if(renderType == VBO.soildColor) {
-	  		scanTriangle_zDepth_Shading();	
-	  		rendersolidTriangle_zDepth_shading();
-  		}
   	
-  	}
   	
-  	//将三角形转换为扫描线 (额外扫描深度值和亮度值)
-  	public  void scanTriangle_zDepth_Shading() {
+  	//将三角形转换为扫描线
+  	public  void scanTriangle() {
   		
   		//初始化扫描线最高， 最低， 最左， 最右的位置
 		scanUpperPosition = screen_h;
@@ -605,6 +597,10 @@ public class Shader extends Thread{
 			}
 		}
 		
+		//根据三角形种类调用不同的渲染模式
+		if(VBO.renderType == VertexBufferObject.soildColor)
+			rendersolidTriangle_zDepth_shading();
+		
 		
   	}
   	
@@ -651,6 +647,6 @@ public class Shader extends Thread{
   		}
   	}
   	
-
+  
 
 }
