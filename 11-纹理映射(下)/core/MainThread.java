@@ -61,12 +61,16 @@ public class MainThread extends JFrame implements KeyListener{
 	
 	public MainThread(){
 		
+		
+		
 		//弹出一个宽 为screen_w高为screen_h的Jpanel窗口，并把它放置屏幕中间。
 		setTitle("Java软光栅教程 11");
 		panel= (JPanel) this.getContentPane();
 		panel.setPreferredSize(new Dimension(screen_w, screen_h));
 		panel.setMinimumSize(new Dimension(screen_w,screen_h));
 		panel.setLayout(null);     
+		
+		
 		
 		setResizable(false); 
 		pack();
@@ -99,7 +103,7 @@ public class MainThread extends JFrame implements KeyListener{
 		Thread   dt   =   new   Thread(new   DaemonThread() );
 		dt.setDaemon(true);
 		dt.start();
-
+		
 		//读取纹理贴图
 		textures = new Texture[5];
 		textures[0] = new Texture("background.jpg", 9, 9);
@@ -107,6 +111,7 @@ public class MainThread extends JFrame implements KeyListener{
 		textures[2] = new Texture("bunny.jpg", 11, 11);
 		textures[3] = new Texture("capsule0.jpg", 11, 10);
 		textures[4] = new Texture("bunny2.jpg", 11, 11);
+		
 		
 		//定义光源
 		Light lightSource1 = new Light(0, 300f, -100f, 0.6f);
@@ -159,6 +164,8 @@ public class MainThread extends JFrame implements KeyListener{
 		//主循环
 		while(true) {
 			
+			
+			
 			//三角形数归零
 			triangleCount = 0;
 			
@@ -181,15 +188,19 @@ public class MainThread extends JFrame implements KeyListener{
 		
 			bunnies[0].localRotationY = (frameIndex)%360;
 			bunnies[0].localTranslation.set(1.2f, -2.1f, 7.7f);
+			bunnies[0].triangleColor = 0xffffff;
 		
 			bunnies[1].localTranslation.set(0.3f, -2.1f, 8.9f);
 			bunnies[1].localRotationY = 40;
+			bunnies[1].triangleColor = 0x006B6B;
 			
 			bunnies[2].localRotationY = 360 -(frameIndex*3%360);
 			bunnies[2].localTranslation.set(-1.1f, -2.1f, 8.4f);
+			bunnies[2].triangleColor = 0xE56B3C;
 			
 			bunnies[3].localRotationY = (frameIndex*2+ 145)%360;
 			bunnies[3].localTranslation.set(0f, -2.1f, 7.7f);
+			bunnies[3].triangleColor = 0xB361B9;
 			
 			for(int i = 0; i < bunnies.length; i++) {
 			
@@ -203,6 +214,8 @@ public class MainThread extends JFrame implements KeyListener{
 			Rasterizer.addVBO(ground);
 			
 			Rasterizer.renderScene();
+			
+			
 	
 			//loop每运行一边，帧数就+1
 			frameIndex++;
@@ -210,15 +223,18 @@ public class MainThread extends JFrame implements KeyListener{
 			//尽量让刷新率保持恒定。
 		    int mySleepTime = 0;
 		    int processTime = (int)(System.currentTimeMillis()-lastDraw);
-		    if(processTime < frameInterval) {
+		    if(processTime < frameInterval && lastDraw!= 0) {
 		    	mySleepTime = frameInterval-processTime;
 		    	try {
 					Thread.sleep(mySleepTime);
+					
 					
 				} catch (InterruptedException e1) {
 					e1.printStackTrace();
 				}
 		    }
+		    
+		   
 		    
 			sleepTime+=mySleepTime;
 			lastDraw=System.currentTimeMillis();
@@ -238,6 +254,8 @@ public class MainThread extends JFrame implements KeyListener{
 			
 			//把图像发画到显存里，这是唯一要用到显卡的地方
 			panel.getGraphics().drawImage(screenBuffer, 0, 0, this);
+			
+			
 		}
 		
 	}
