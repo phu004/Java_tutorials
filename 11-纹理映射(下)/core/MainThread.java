@@ -226,7 +226,7 @@ public class MainThread extends JFrame implements KeyListener{
 		    if(processTime < frameInterval && lastDraw!= 0) {
 		    	mySleepTime = frameInterval-processTime;
 		    	try {
-					Thread.sleep(mySleepTime);
+					Thread.sleep(0);
 					
 					
 				} catch (InterruptedException e1) {
@@ -250,7 +250,7 @@ public class MainThread extends JFrame implements KeyListener{
 			//显示当前刷新率
 			Graphics2D g2 =(Graphics2D)screenBuffer.getGraphics(); 
 			g2.setColor(Color.BLACK);
-			g2.drawString("频数: " + framePerSecond + "      "  +  "CPU使用率: " + (frameInterval-averageSleepTime)*100/frameInterval +  "%       " + "三角形总数： " + triangleCount, 5, 15);
+			g2.drawString("频数: " + framePerSecond + "      "  + "三角形总数： " + triangleCount, 5, 15);
 			
 			//把图像发画到显存里，这是唯一要用到显卡的地方
 			panel.getGraphics().drawImage(screenBuffer, 0, 0, this);
